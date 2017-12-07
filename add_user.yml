@@ -1,0 +1,6 @@
+- include: ./tasks/production.yml
+  tags:
+       - prod
+- include: ./tasks/qa_and_stage.yml
+  tags:
+      - test

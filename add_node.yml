@@ -1,0 +1,86 @@
+- hosts:                  master
+- hosts:                  add
+
+  environment:
+    RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq.config
+
+  tasks:
+   - debug:
+       var:               ansible_default_ipv4.address
+
+   - name:                install repo Erlang
+     yum:
+       name:              http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+       state:             present
+     become:              true
+
+   - name:                Install the latest Erlang
+     yum:
+       name:              erlang
+       state:             latest
+     become:              true
+
+   - name:                Install the latest version of RabbitMQ
+     yum:
+       name:              https://dl.bintray.com/rabbitmq/rabbitmq-server-rpm/rabbitmq-server-3.6.12-1.el7.noarch.rpm
+     become:              true
+
+   - name:                Copy config RabbitMQ
+     template:
+       src:               rabbitmq.config.j2
+       dest:              /etc/rabbitmq/rabbitmq.config
+     become:              true
+
+   - name:                Copy env RabbitMQ
+     copy:
+       src:               ./files/rabbitmq.sh
+       dest:              /etc/profile.d/rabbitmq.sh
+       mode:              0777
+     become:              true
+
+
+   - name:                Copy erlang cookie
+     copy:
+       src:               ./files/erlang.cookie
+       dest:              /var/lib/rabbitmq/.erlang.cookie
+       owner:             rabbitmq
+       group:             rabbitmq
+       mode:              0600
+     become:              true
+
+   - name:                Copy service RabbitMQ
+     copy:
+       src:               ./files/rabbitmq-server.service
+       dest:              /usr/lib/systemd/system/rabbitmq-server.service
+       owner:             root
+       group:             root
+       mode:              0644
+     become:              true
+
+   - name:                Start service RabbitMQ
+     systemd:
+       name:              rabbitmq-server
+       state:             restarted
+       enabled:           True
+       daemon_reload:     yes
+     become:              true
+
+   - name:                Enables the Plugin
+     rabbitmq_plugin:
+       name:              "{{ item }}"
+       new_only:          yes
+       state:             enabled
+     become:              true
+     with_items:
+        - rabbitmq_shovel
+        - rabbitmq_shovel_management
+        - rabbitmq_top
+        - amqp_client
+        - cowboy
+        - cowlib
+        - rabbitmq_management
+        - rabbitmq_management_agent
+        - rabbitmq_management_visualiser
+        - rabbitmq_sharding
+        - rabbitmq_web_dispatch
+- include: ./tasks/add_node.yml

@@ -1,0 +1,45 @@
+- hosts:                  master
+- hosts:                  delete
+
+  environment:
+    RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq.config
+
+  tasks:
+   - debug:
+       var:               ansible_hostname
+
+   - name:                RabbitMQ stop_app
+     command:             /sbin/rabbitmqctl stop_app
+     become:              true
+
+   - name:                RabbitMQ forget cluster node
+     command:             /sbin/rabbitmqctl -n 'rabbit@{{hostvars[groups['master'][0]]['ansible_hostname']}}' forget_cluster_node  'rabbit@{{ansible_hostname}}'
+     become:              true
+
+   - name:                Stop service RabbitMQ
+     systemd:
+       name:              rabbitmq-server
+       state:             stopped
+     become:              true
+
+   - name:                Remove repo Erlang
+     yum:
+       name:              erlang-solutions
+       state:             absent
+     become:              true
+
+   - name:                Remove the latest Erlang
+     yum:
+       name:              erlang*
+       state:             absent
+     become:              true
+
+   - name:                Remove the latest version of RabbitMQ
+     yum:
+       name:              abbitmq-server
+       state:             absent
+     become:              true
+
+   - name:                Delete path
+     command:             bash -c "find / -type d -name "erlang" -or -name "rabbitmq" -exec rm -fr {} \;"
+     become:              true

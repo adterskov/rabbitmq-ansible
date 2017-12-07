@@ -1,0 +1,18 @@
+[master]
+node1.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+
+[slave]
+node2.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node3.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+
+[add]
+node2.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node3.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node4.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node5.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+
+[delete]
+node2.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node3.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node4.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa
+node5.dev.rabbitmq.vs ansible_ssh_user=deployment ansible_ssh_private_key_file=./files/deployment_id_rsa

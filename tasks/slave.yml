@@ -1,0 +1,22 @@
+- hosts:        slave
+  gather_facts: no
+
+  tasks:
+    - debug:
+        var:    hostvars[groups['master'][0]]['ansible_hostname']
+
+    - name:     RabbitMQ stop_app
+      command:  systemctl restart rabbitmq-server.service
+      become:   true
+
+    - name:     RabbitMQ stop_app
+      command:  /sbin/rabbitmqctl stop_app
+      become:   true
+
+    - name:     RabbitMQ join to cluster
+      command:  /sbin/rabbitmqctl join_cluster 'rabbit@{{hostvars[groups['master'][0]]['ansible_hostname']}}'
+      become:   true
+
+    - name:     RabbitMQ start_app
+      command:  /sbin/rabbitmqctl start_app
+      become:   true

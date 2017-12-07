@@ -1,0 +1,64 @@
+- hosts: QaAndStage
+
+  vars_files:
+    - "../vars.yml"
+
+  tasks:
+
+    - name: Generate random password
+      shell: tr -dc A-Za-z0-9_ < /dev/urandom | head -c 16 | xargs 2>/dev/null
+      register: password
+
+    - name: Create new QA vhost
+      rabbitmq_vhost:
+        name: '{{qa_vhost}}'
+
+    - name: Create new Stage vhost
+      rabbitmq_vhost:
+        name: '{{stage_vhost}}'
+
+    - name: Create new user
+      rabbitmq_user:
+        user: '{{ new_user }}'
+        password: '{{ password.stdout }}'
+        tags: monitoring
+        permissions:
+        - vhost: '{{qa_vhost}}'
+          configure_priv: .*
+          read_priv: .*
+          write_priv: .*
+        - vhost: '{{stage_vhost}}'
+          configure_priv: .*
+          read_priv: .*
+          write_priv: .*
+
+    - name: Policies for QA vhost
+      rabbitmq_policy:
+        vhost: '{{qa_vhost}}'
+        name: HA
+        pattern: .*
+        priority: 0
+        tags:
+          ha-mode: all
+          ha-sync-mode:	automatic
+
+    - name: Policies for Stage vhost
+      rabbitmq_policy:
+        vhost: '{{stage_vhost}}'
+        name: HA
+        pattern: .*
+        priority: 0
+        tags:
+          ha-mode: all
+          ha-sync-mode:	automatic
+
+    - debug:
+        msg:
+          - '############## TEST STAND #################'
+          - 'URL Monitor: http://tank.rmq:15672/ '
+          - 'HOST: tank.rmq '
+          - 'PORT: 5672 '
+          - 'USER: {{ new_user }} '
+          - 'PASSWORD: {{ password.stdout }} '
+          - 'VHOST: {{ qa_vhost }}, {{ stage_vhost }}'
+          - '###########################################'

@@ -1,0 +1,8 @@
+######### required #########
+new_user: ryumin
+############################
+
+tag: monitoring
+prod_vhost: 'prod_{{new_user}}'
+stage_vhost: 'stage_{{new_user}}'
+qa_vhost: 'qa_{{new_user}}'
